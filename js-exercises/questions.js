@@ -55,7 +55,13 @@
  */
 
 function processData(data, callback) {
-  // Your implementation here
+  setTimeout(() => {
+    if(data.includes('error')){
+      callback(new Error("process data error"), undefined);
+    }else{
+      callback(null, data.toUpperCase());
+    }
+  }, 125);
 }
 
 /**
@@ -116,7 +122,18 @@ const fs = require("fs");
  * @param {Function} callback - A callback function that handles the result of the file operation.
  */
 function createStudentFile(studentName, studentInfo, callback) {
-  // Your implementation here
+  const [firstName, lastName] = studentName.split(" ");
+  if(studentInfo.firstName != firstName || studentInfo.surName != lastName){
+    return callback(new Error("Wrong Information"));
+  }
+  const filename = firstName.toLowerCase() + lastName.charAt(0).toUpperCase() + lastName.slice(1) + ".txt";
+
+  if(fs.existsSync(filename)){
+    return callback(new Error("File exists"));
+  }
+
+  const content = `Name: ${firstName} ${lastName}\nAge: ${studentInfo.age}\nHobby: ${studentInfo.hobby.join(", ")}`;
+  fs.writeFile(filename, content, callback);
 }
 
 /**
@@ -154,7 +171,14 @@ function createStudentFile(studentName, studentInfo, callback) {
  */
 
 function loadUserData(userId) {
-  // Your implementation here
+  return new Promise((res,rej) => {
+    setTimeout(() => {
+      if(userId < 1){
+        return rej(new Error("Invalid user ID"));
+      }
+      res({id: userId, name: 'John Doe'})
+    }, 100);
+  })
 }
 
 /**
@@ -198,7 +222,16 @@ function loadUserData(userId) {
  */
 
 async function fetchUserDetails(userId) {
-  // Your implementation here
+  const data = await new Promise((res,rej) => {
+    setTimeout(() => {
+      if(userId < 1){
+        return rej(new Error("Invalid user ID"));
+      }
+      res({id: userId, name: 'Jane Doe'})
+    }, 100);
+  });
+
+  return data;
 }
 
 /**
@@ -237,7 +270,35 @@ async function fetchUserDetails(userId) {
  */
 
 function checkState(board) {
-  // Your implementation here
+  const winList = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6]
+  ];
+  function checkWin(board, player){
+    for(let [a,b,c] of winList){
+      if(board[a] === player && board[b] === player && board[c] === player){
+        return true;
+      }
+    }
+    return false;
+  }
+  if(checkWin(board, 'X')) return 'X wins';
+  if(checkWin(board, 'O')) return 'O wins';
+
+  const xMoves = board.filter(cell => cell === 'X').length;
+  const oMoves = board.filter(cell => cell === 'O').length;
+  
+  if(xMoves + oMoves === 9) return 'It is a tie'
+  if(xMoves > oMoves) return 'O to play';
+  return 'X to play';
+  
+
 }
 
 module.exports = {
